@@ -1,0 +1,11 @@
+asphalt,31,29,0.935
+bs4,10,7,0.75
+faker,0,0,0.0
+hbmqtt,29,4,0.155
+httpie,12,1,0.083
+oauthlib,159,46,0.296
+pycookiecheat,1,1,1.0
+pydantic,5,1,0.2
+requests,63,16,0.329
+sh,4,3,0.75
+total,314,108,0.365

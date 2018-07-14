@@ -1,0 +1,24 @@
+item: ('str', 'int') , 0.101
+item: ('str', 'List') , 0.103
+item: ('Callable',) , 0.114
+item: ('NoneType', 'List') , 0.123
+item: ('NoneType', 'int') , 0.136
+item: ('NoneType', 'Dict') , 0.153
+item: ('bytes', 'str') , 0.175
+item: ('bytes',) , 0.184
+item: ('Dict',) , 0.188
+item: ('int',) , 0.193
+item: ('List',) , 0.197
+item: ('NoneType', 'str') , 0.438
+item: ('str',) , 0.632
+item: ('NoneType',) , 0.750
+
+------------------------ RULES:
+Rule: ('List',) ==> ('str',) , 0.523
+Rule: ('int',) ==> ('str',) , 0.524
+Rule: ('NoneType',) ==> ('str',) , 0.585
+Rule: ('List',) ==> ('NoneType',) , 0.626
+Rule: ('str',) ==> ('NoneType',) , 0.694
+Rule: ('int',) ==> ('NoneType',) , 0.705
+Rule: ('Dict',) ==> ('NoneType',) , 0.814
+Rule: ('bytes',) ==> ('str',) , 0.950
