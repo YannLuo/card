@@ -3,7 +3,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import nltk
 import re
 from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
-from utils.metric import jaccard
+from utils.metrics import jaccard, hamming, accuracy, precision, recall, f1_score
 
 
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
@@ -27,18 +27,23 @@ type_to_regexp = {
 }
 
 
-def train_card():
+def train_vectorizer():
     docstrings = []
     for repo in repos:
         result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
         docstrings.extend([r[-1] for r in result])
     vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
-    vectorizer.fit_transform(docstrings)
+    vectorizer.fit(docstrings)
     return vectorizer
 
 
 def card(corpus, vectorizer):
     jac_list = []
+    ham_list = []
+    prec_list = []
+    rec_list = []
+    f1_list = []
+    acc_list = []
     id2term = {}
     for k, v in vectorizer.vocabulary_.items():
         id2term[v] = k
@@ -77,14 +82,16 @@ def card(corpus, vectorizer):
                     pred_types = ['List']
 
             pred_types = set(pred_types)
-            included_types = set(basic_types) & set(true_types)
+            included_types = set(true_types) - set(['NoneType'])
             if 'Tuple' in included_types:
                 included_types -= set(['Tuple'])
                 included_types.add('List')
 
             # calculate Jaccard Coefficient
-            tmp = jaccard(included_types, pred_types)
-            jac_list.append(tmp)
-    # print(f'Mean jaccard: {0.0 if len(jac_list) == 0 else sum(jac_list) / len(jac_list):.3f} '
-    #       f'consistent count: {sum([jac >= 1.0 for jac in jac_list])} total count: {len(jac_list)}')
-    return jac_list
+            jac_list.append(jaccard(pred_types, included_types))
+            ham_list.append(hamming(pred_types, included_types))
+            prec_list.append(precision(pred_types, included_types))
+            rec_list.append(recall(pred_types, included_types))
+            f1_list.append(f1_score(pred_types, included_types))
+            acc_list.append(accuracy(pred_types, included_types))
+    return jac_list, ham_list, prec_list, rec_list, f1_list, acc_list

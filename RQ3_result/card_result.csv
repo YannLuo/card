@@ -1,12 +1,12 @@
-project,total count,consistent count,mean jaccard
-asphalt,31,24,0.855
-bs4,10,6,0.75
-faker,0,0,0.0
-hbmqtt,29,18,0.672
-httpie,12,7,0.708
-oauthlib,159,96,0.715
-pycookiecheat,1,1,1.0
-pydantic,5,1,0.34
-requests,63,34,0.66
-sh,4,1,0.3
-total,314,188,0.704
+project,total count,mean jaccard,mean hamming,mean precision,mean recall,mean f1-score,mean accuracy
+asphalt,31,0.823,0.387,0.919,0.839,0.859,0.71
+bs4,10,0.662,1.2,0.8,0.762,0.722,0.5
+faker,0,0.0,0.0,0.0,0.0,0.0,0.0
+hbmqtt,29,0.638,0.586,0.69,0.672,0.667,0.552
+httpie,12,0.708,0.583,0.708,0.833,0.75,0.583
+oauthlib,159,0.705,0.547,0.734,0.802,0.746,0.585
+pycookiecheat,1,1.0,0.0,1.0,1.0,1.0,1.0
+pydantic,5,0.279,2.4,0.6,0.279,0.33,0.2
+requests,63,0.588,1.19,0.722,0.639,0.642,0.444
+sh,4,0.267,4.25,0.5,0.267,0.281,0.25
+total,314,0.674,0.761,0.743,0.746,0.717,0.554

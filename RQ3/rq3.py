@@ -1,41 +1,49 @@
 import os
 from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
-from RQ3.card import card
+from RQ3.card import card, train_vectorizer
+from utils.metrics import calc_aver
 import csv
 
 
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
 basic_types = ['Dict', 'str', 'int', 'bool', 'List', 'bytes', 'Tuple', 'Callable', 'Type', 'NoneType'][:-1]
 RQ3_result_dir = 'RQ3_result'
+headers = ('project', 'total count', 'mean jaccard', 'mean hamming',
+           'mean precision', 'mean recall', 'mean f1-score', 'mean accuracy')
 
 
-def start(vectorizer):
-    all_corpus = 0
-    all_cons = 0
-    all_exp = 0
+def start():
+    vectorizer = train_vectorizer()
     jac_list = []
+    ham_list = []
+    prec_list = []
+    rec_list = []
+    f1_list = []
+    acc_list = []
     with open(os.path.join(RQ3_result_dir, 'card_result.csv'), 'w', encoding='utf-8', newline='') as wf:
         writer = csv.writer(wf)
-        writer.writerow(('project', 'total count', 'consistent count', 'mean jaccard'))
+        writer.writerow(headers)
         for repo in repos:
-            print(repo)
+            print(f'card - {repo}')
             result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
-            all_corpus += len(result)
-            jacs = card(result, vectorizer)
-            cons = sum([jac>=1.0 for jac in jacs])
-            total = len(jacs)
-            all_cons += cons
-            all_exp += total
-            jac_list.extend(jacs)
-            writer.writerow((repo,
-                             len(jacs),
-                             sum([jac >= 1.0 for jac in jacs]),
-                             round(0.0 if len(jacs) == 0 else sum(jacs) / len(jacs), 3)))
-        writer.writerow(('total',
-                         len(jac_list),
-                         sum([jac >= 1.0 for jac in jac_list]),
-                         round(0.0 if len(jac_list) == 0 else sum(jac_list) / len(jac_list), 3)))
-    # print(f'Total count of corpus is {all_corpus}. {all_exp} are at least with one basic type. '
-    #       f'{all_corpus - all_exp} only contain user-defined type(s).')
-    # print(f'Accuracy: {all_cons}/{all_exp}')
-    # print(f'Mean jaccard: {sum(jac_list) / len(jac_list)}')
+            jacs, hams, precs, recs, f1s, accs = card(result, vectorizer)
+            jac_list += jacs
+            ham_list += hams
+            prec_list += precs
+            rec_list += recs
+            f1_list += f1s
+            acc_list += accs
+            writer.writerow((repo, len(jacs),
+                             calc_aver(jacs),
+                             calc_aver(hams),
+                             calc_aver(precs),
+                             calc_aver(recs),
+                             calc_aver(f1s),
+                             calc_aver(accs)))
+        writer.writerow(('total', len(jac_list),
+                         calc_aver(jac_list),
+                         calc_aver(ham_list),
+                         calc_aver(prec_list),
+                         calc_aver(rec_list),
+                         calc_aver(f1_list),
+                         calc_aver(acc_list)))
