@@ -25,8 +25,9 @@ def start():
         writer.writerow(headers)
         for repo in repos:
             print(f'card - {repo}')
-            result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
-            jacs, hams, precs, recs, f1s, accs = card(result, vectorizer)
+            corpus = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
+            corpus = list(filter(lambda x: set(x[3]) & set(basic_types), corpus))
+            jacs, hams, precs, recs, f1s, accs = card(corpus, vectorizer)
             jac_list += jacs
             ham_list += hams
             prec_list += precs

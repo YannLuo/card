@@ -50,48 +50,48 @@ def card(corpus, vectorizer):
     for idx, item in enumerate(corpus):
         docstring = vectorizer.transform([item[-1]])[0]
         true_types = item[3]
-        if set(true_types) & set(basic_types):
-            # true_types at least have one basic type
-            terms = [id2term[i] for i in docstring.indices]
-            pred_types = []
-            # try hint terms of each basic type whether match a type
-            # term pattern `\w+(\_)?name|\w+(\_)?method`
-            # is more likely to be a `str` type
-            for basic_type in basic_types:
-                h_terms = hint_terms[basic_type]
-                if set(terms) & set(h_terms):
-                    pred_types.append('List' if basic_type == 'Tuple' else basic_type)
-                elif basic_type == 'str':
-                    for term in terms:
-                        if type_to_regexp[basic_type].match(term):
-                            pred_types.append(basic_type)
-                            break
-            # if type `Dict` and `str` in pred_types at same time
-            # remove `str` as type hardly never occur `Dict` and `str` at same time
-            if 'Dict' in pred_types and 'str' in pred_types:
-                pred_types.remove('str')
-            # type `Type` often occur independently
-            if 'Type' in pred_types and len(pred_types) > 1:
-                pred_types.remove('Type')
-            # if pred_types is empty
-            # then find whether exists a term whose part of speech(pos) is NNS or NNPS
-            # if found, the pos of this variable is likely to be `List`
-            if not pred_types:
-                pos_tags = [tag for w, tag in nltk.pos_tag(terms)]
-                if set(['NNS', 'NNPS']) & set(pos_tags):
-                    pred_types = ['List']
+        terms = [id2term[i] for i in docstring.indices]
+        pred_types = []
+        # try hint terms of each basic type whether match a type
+        # term pattern `\w+(\_)?name|\w+(\_)?method`
+        # is more likely to be a `str` type
+        for basic_type in basic_types:
+            h_terms = hint_terms[basic_type]
+            if set(terms) & set(h_terms):
+                pred_types.append('List' if basic_type == 'Tuple' else basic_type)
+            elif basic_type == 'str':
+                for term in terms:
+                    if type_to_regexp[basic_type].match(term):
+                        pred_types.append(basic_type)
+                        break
+        # if type `Dict` and `str` in pred_types at same time
+        # remove `str` as type hardly never occur `Dict` and `str` at same time
+        if 'Dict' in pred_types and 'str' in pred_types:
+            pred_types.remove('str')
+        # type `Type` often occur independently
+        if 'Type' in pred_types and len(pred_types) > 1:
+            pred_types.remove('Type')
+        # if pred_types is empty
+        # then find whether exists a term whose part of speech(pos) is NNS or NNPS
+        # if found, the pos of this variable is likely to be `List`
+        if not pred_types:
+            pos_tags = [tag for w, tag in nltk.pos_tag(terms)]
+            if set(['NNS', 'NNPS']) & set(pos_tags):
+                pred_types = ['List']
 
-            pred_types = set(pred_types)
-            included_types = set(true_types) - set(['NoneType'])
-            if 'Tuple' in included_types:
-                included_types -= set(['Tuple'])
-                included_types.add('List')
+        pred_types = set(pred_types)
+        included_types = set(true_types) - set(['NoneType'])
+        if 'Tuple' in included_types:
+            included_types -= set(['Tuple'])
+            included_types.add('List')
 
-            # calculate Jaccard Coefficient
-            jac_list.append(jaccard(pred_types, included_types))
-            ham_list.append(hamming(pred_types, included_types))
-            prec_list.append(precision(pred_types, included_types))
-            rec_list.append(recall(pred_types, included_types))
-            f1_list.append(f1_score(pred_types, included_types))
-            acc_list.append(accuracy(pred_types, included_types))
+        # calculate Jaccard Coefficient
+        jac_list.append(jaccard(pred_types, included_types))
+        ham_list.append(hamming(pred_types, included_types))
+        prec_list.append(precision(pred_types, included_types))
+        rec_list.append(recall(pred_types, included_types))
+        f1_list.append(f1_score(pred_types, included_types))
+        acc_list.append(accuracy(pred_types, included_types))
+    # print(f'Mean jaccard: {0.0 if len(jac_list) == 0 else sum(jac_list) / len(jac_list):.3f} '
+    #       f'consistent count: {sum([jac >= 1.0 for jac in jac_list])} total count: {len(jac_list)}')
     return jac_list, ham_list, prec_list, rec_list, f1_list, acc_list
