@@ -13,13 +13,13 @@ headers = ('project', 'total count', 'mean jaccard', 'mean hamming',
 
 
 def start():
-    vectorizer = train_vectorizer()
     jac_list = []
     ham_list = []
     prec_list = []
     rec_list = []
     f1_list = []
     acc_list = []
+    vectorizer = train_vectorizer()
     with open(os.path.join(RQ3_result_dir, 'card_result.csv'), 'w', encoding='utf-8', newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(headers)

@@ -4,6 +4,7 @@ from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from utils.metrics import jaccard, hamming, accuracy, precision, recall, f1_score, calc_aver
 from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
+from RQ3.card import train_vectorizer
 import os
 import csv
 
@@ -34,16 +35,17 @@ def gen_corpus_data(vectorizer, types_list, sep_docstrings):
     return X, y
 
 
-def train_model(clf_type='rf'):
+def train_model(clf_type, vectorizer, target=None):
     clf_type = clf_type.lower()
     docstrings = []
     types_list = []
     for repo in repos:
+        if repo == target:
+            continue
         result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
         types_list.extend([r[-2] for r in result])
         docstrings.extend([r[-1] for r in result])
-    vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
-    sep_docstrings = vectorizer.fit_transform(docstrings)
+    sep_docstrings = vectorizer.transform(docstrings)
     X, y = gen_corpus_data(vectorizer, types_list, sep_docstrings)
     if clf_type == 'rf':
         clf = RandomForestClassifier().fit(X, y)
@@ -51,7 +53,7 @@ def train_model(clf_type='rf'):
         clf = KNeighborsClassifier().fit(X, y)
     else:
         return None, None
-    return clf, vectorizer
+    return clf
 
 
 def calc_metric(pred, true):
@@ -66,7 +68,7 @@ def calc_metric(pred, true):
 
 def compare(clf_type):
     clf_type = clf_type.lower()
-    model, vectorizer = train_model(clf_type)
+    vectorizer = train_vectorizer()
     jac_list = []
     ham_list = []
     prec_list = []
@@ -77,6 +79,7 @@ def compare(clf_type):
         writer = csv.writer(wf)
         writer.writerow(headers)
         for repo in repos:
+            model = train_model(clf_type, vectorizer, repo)
             print(f'{clf_type} - {repo}')
             docstrings = []
             types_list = []
