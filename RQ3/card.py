@@ -1,9 +1,7 @@
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer
 import nltk
 import re
-from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
 from utils.metrics import jaccard, hamming, accuracy, precision, recall, f1_score
+from RQ3.corpus import train_vectorizer
 
 
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
@@ -27,17 +25,7 @@ type_to_regexp = {
 }
 
 
-def train_vectorizer():
-    docstrings = []
-    for repo in repos:
-        result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
-        docstrings.extend([r[-1] for r in result])
-    vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
-    vectorizer.fit(docstrings)
-    return vectorizer
-
-
-def card(corpus, vectorizer):
+def card(corpus):
     jac_list = []
     ham_list = []
     prec_list = []
@@ -45,6 +33,7 @@ def card(corpus, vectorizer):
     f1_list = []
     acc_list = []
     id2term = {}
+    vectorizer = train_vectorizer()
     for k, v in vectorizer.vocabulary_.items():
         id2term[v] = k
     for idx, item in enumerate(corpus):
@@ -92,6 +81,4 @@ def card(corpus, vectorizer):
         rec_list.append(recall(pred_types, included_types))
         f1_list.append(f1_score(pred_types, included_types))
         acc_list.append(accuracy(pred_types, included_types))
-    # print(f'Mean jaccard: {0.0 if len(jac_list) == 0 else sum(jac_list) / len(jac_list):.3f} '
-    #       f'consistent count: {sum([jac >= 1.0 for jac in jac_list])} total count: {len(jac_list)}')
     return jac_list, ham_list, prec_list, rec_list, f1_list, acc_list

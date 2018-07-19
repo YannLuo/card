@@ -1,6 +1,8 @@
 import re
 from nltk import sent_tokenize
 import csv
+from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
@@ -58,3 +60,11 @@ def ext_unstructed_docs_with_one_arg(repo_name):
     return var_type_doc
 
 
+def train_vectorizer():
+    docstrings = []
+    for repo in repos:
+        result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
+        docstrings.extend([r[-1] for r in result])
+    vectorizer = CountVectorizer(stop_words=stopwords.words('english'))
+    vectorizer.fit(docstrings)
+    return vectorizer

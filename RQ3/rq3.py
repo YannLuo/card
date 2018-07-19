@@ -1,6 +1,6 @@
 import os
-from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
-from RQ3.card import card, train_vectorizer
+from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg, train_vectorizer
+from RQ3.card import card
 from utils.metrics import calc_aver
 import csv
 
@@ -19,7 +19,6 @@ def start():
     rec_list = []
     f1_list = []
     acc_list = []
-    vectorizer = train_vectorizer()
     with open(os.path.join(RQ3_result_dir, 'card_result.csv'), 'w', encoding='utf-8', newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(headers)
@@ -27,7 +26,7 @@ def start():
             print(f'card - {repo}')
             corpus = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
             corpus = list(filter(lambda x: set(x[3]) & set(basic_types), corpus))
-            jacs, hams, precs, recs, f1s, accs = card(corpus, vectorizer)
+            jacs, hams, precs, recs, f1s, accs = card(corpus)
             jac_list += jacs
             ham_list += hams
             prec_list += precs

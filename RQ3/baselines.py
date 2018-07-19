@@ -1,10 +1,7 @@
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import CountVectorizer
 from utils.metrics import jaccard, hamming, accuracy, precision, recall, f1_score, calc_aver
-from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
-from RQ3.card import train_vectorizer
+from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg, train_vectorizer
 import os
 import csv
 
@@ -24,14 +21,13 @@ def gen_corpus_data(vectorizer, types_list, sep_docstrings):
     for types, sds in zip(types_list, sep_docstrings):
         term_vec = [0] * term_len
         type_vec = [0] * type_len
-        if set(types) & set(basic_types):
-            for idx, cnt in zip(sds.indices, sds.data):
-                term_vec[idx] = cnt
-            for t in types:
-                if t in basic_types:
-                    type_vec[basic_types.index(t)] = 1
-            X.append(term_vec)
-            y.append(type_vec)
+        for idx, cnt in zip(sds.indices, sds.data):
+            term_vec[idx] = cnt
+        for t in types:
+            if t in basic_types:
+                type_vec[basic_types.index(t)] = 1
+        X.append(term_vec)
+        y.append(type_vec)
     return X, y
 
 
@@ -43,6 +39,7 @@ def train_model(clf_type, vectorizer, target=None):
         if repo == target:
             continue
         result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
+        result = list(filter(lambda x: set(x[3]) & set(basic_types), result))
         types_list.extend([r[-2] for r in result])
         docstrings.extend([r[-1] for r in result])
     sep_docstrings = vectorizer.transform(docstrings)
@@ -52,7 +49,7 @@ def train_model(clf_type, vectorizer, target=None):
     elif clf_type == 'knn':
         clf = KNeighborsClassifier().fit(X, y)
     else:
-        return None, None
+        return None
     return clf
 
 
@@ -66,7 +63,7 @@ def calc_metric(pred, true):
     return tmp_jac, tmp_ham, tmp_prec, tmp_rec, tmp_f1, tmp_acc
 
 
-def compare(clf_type):
+def baseline(clf_type):
     clf_type = clf_type.lower()
     vectorizer = train_vectorizer()
     jac_list = []
@@ -79,13 +76,12 @@ def compare(clf_type):
         writer = csv.writer(wf)
         writer.writerow(headers)
         for repo in repos:
-            model = train_model(clf_type, vectorizer, repo)
             print(f'{clf_type} - {repo}')
-            docstrings = []
-            types_list = []
-            result = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
-            types_list.extend([r[-2] for r in result if set(r[-2]) & set(basic_types)])
-            docstrings.extend([r[-1] for r in result if set(r[-2]) & set(basic_types)])
+            model = train_model(clf_type, vectorizer, target=repo)
+            corpus = ext_structed_docs(repo) + ext_unstructed_docs_with_one_arg(repo)
+            corpus = list(filter(lambda x: set(x[3]) & set(basic_types), corpus))
+            types_list = [r[-2] for r in corpus]
+            docstrings = [r[-1] for r in corpus]
             sep_docstrings = vectorizer.transform(docstrings)
             X, y = gen_corpus_data(vectorizer, types_list, sep_docstrings)
             tmp_jac_list = []
