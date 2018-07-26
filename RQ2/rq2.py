@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 import math
 from collections import Counter
 import os
+from sklearn.feature_selection import SelectKBest, chi2
 
 
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
@@ -151,6 +152,7 @@ def stat_hint_term_by_tfidf(basic_type):
                 docstring = re.compile(':param \w+: ').split(docstring)[1]
                 X.append(docstring)
     if X:
+        # TODO: use chi2 and SelectKBest
         ret = cal_tfidf_of_certain_type(X)
         for doc in ret:
             for i, li in enumerate(doc):

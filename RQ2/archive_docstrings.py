@@ -8,7 +8,7 @@ import time
 doc_arc_dir = 'doc_archive'
 doc_sql_dir = 'doc_sql'
 trace_dir = 'trace_sql'
-repos = ['asphalt', 'bs4', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh', 'faker'][:-1]
+repos = ['asphalt', 'bs4', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh', 'faker']
 
 
 def read_result(repo_name):
@@ -111,7 +111,7 @@ def _dump_sql_to_csv(repo_name):
         for module, module_items in ttype.items():
             for qualname, qualname_items in module_items.items():
                 if module in doctype and qualname in doctype[module]:
-                    writer.writerow((module, qualname, qualname_items, doctype[module][qualname]))
+                    writer.writerow((module, qualname, qualname_items, doctype[module][qualname].lower()))
 
 
 def dump_sql_to_csv():

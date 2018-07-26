@@ -4,6 +4,7 @@ from utils.metrics import jaccard, hamming, accuracy, precision, recall, f1_scor
 from RQ3.corpus import train_vectorizer
 
 
+vectorizer = train_vectorizer()
 repos = ['asphalt', 'bs4', 'faker', 'hbmqtt', 'httpie', 'oauthlib', 'pycookiecheat', 'pydantic', 'requests', 'sh']
 basic_types = ['Dict', 'str', 'int', 'bool', 'List', 'bytes', 'Tuple', 'Callable', 'Type', 'NoneType'][:-1]
 hint_terms = {
@@ -26,6 +27,7 @@ type_to_regexp = {
 
 
 def card(corpus):
+    global vectorizer
     jac_list = []
     ham_list = []
     prec_list = []
@@ -33,7 +35,6 @@ def card(corpus):
     f1_list = []
     acc_list = []
     id2term = {}
-    vectorizer = train_vectorizer()
     for k, v in vectorizer.vocabulary_.items():
         id2term[v] = k
     for idx, item in enumerate(corpus):

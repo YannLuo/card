@@ -1,5 +1,5 @@
 import os
-from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg, train_vectorizer
+from RQ3.corpus import ext_structed_docs, ext_unstructed_docs_with_one_arg
 from RQ3.card import card
 from utils.metrics import calc_aver
 import csv
