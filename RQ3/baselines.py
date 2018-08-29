@@ -67,7 +67,7 @@ def baseline(clf_type):
     rec_list = []
     f1_list = []
     acc_list = []
-    epoch = 100
+    epoch = 1
     with open(os.path.join(RQ3_result_dir, f'{clf_type}_result.csv'), 'w', encoding='utf-8', newline='') as wf:
         writer = csv.writer(wf)
         writer.writerow(headers)
@@ -89,7 +89,11 @@ def baseline(clf_type):
                     tmp_rec_list = []
                     tmp_f1_list = []
                     tmp_acc_list = []
-                    pred_result = model.predict(X)
+                    if clf_type == 'rc':
+                        pred_result = model.predict(X)
+                        print(pred_result)
+                    else:
+                        pred_result = model.predict(X)
                     for idx, pr in enumerate(pred_result):
                         true_types_set = set(types_list[idx]) - set(['None'])
                         pred_types_set = set([basic_types[i] for i, x in enumerate(pr) if x == 1])
@@ -112,13 +116,13 @@ def baseline(clf_type):
                     rec_list += tmp_rec_list
                     f1_list += tmp_f1_list
                     acc_list += tmp_acc_list
-                # writer.writerow((repo, len(tmp_jac_list),
-                #                  calc_aver(tmp_jac_list),
-                #                  calc_aver(tmp_ham_list),
-                #                  calc_aver(tmp_prec_list),
-                #                  calc_aver(tmp_rec_list),
-                #                  calc_aver(tmp_f1_list),
-                #                  calc_aver(tmp_acc_list)))
+                writer.writerow((repo, len(tmp_jac_list),
+                                 calc_aver(tmp_jac_list),
+                                 calc_aver(tmp_ham_list),
+                                 calc_aver(tmp_prec_list),
+                                 calc_aver(tmp_rec_list),
+                                 calc_aver(tmp_f1_list),
+                                 calc_aver(tmp_acc_list)))
         writer.writerow(('total', int(len(jac_list) / epoch),
                          calc_aver(jac_list),
                          calc_aver(ham_list),
